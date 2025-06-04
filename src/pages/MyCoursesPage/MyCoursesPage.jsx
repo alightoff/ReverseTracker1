@@ -1,136 +1,121 @@
 import { useState } from "react";
 import { useCourseStore } from "../../store/courseStore";
+import AddCourseModal from "../../components/AddCourseModal/AddCourseModal";
+import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 
 export default function MyCoursesPage() {
+  const [modalOpen, setModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("private");
+  const navigate = useNavigate();
   const {
     userCourses,
-    addUserCourse,
+    publicSubmits,
     removeUserCourse,
-    addPublicSubmit,
+    setActiveCourse,
   } = useCourseStore();
 
-  const [jsonInput, setJsonInput] = useState("");
-  const [privacy, setPrivacy] = useState("private");
-  const [error, setError] = useState("");
+  const courses = activeTab === "private" ? userCourses : publicSubmits;
 
-  const handleAddCourse = () => {
-    try {
-      const parsed = JSON.parse(jsonInput);
-
-      if (!parsed.id || !parsed.name || !Array.isArray(parsed.chapters)) {
-        throw new Error("Некорректная структура курса");
-      }
-
-      if (privacy === "private") {
-        addUserCourse(parsed);
-      } else {
-        addPublicSubmit(parsed);
-        alert("Курс отправлен на модерацию.");
-      }
-
-      setJsonInput("");
-      setPrivacy("private");
-      setError("");
-    } catch (e) {
-      setError(e.message);
-    }
+  const handleOpenCourse = (course) => {
+    setActiveCourse(course);
+    navigate("/course");
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h1 className="text-2xl font-bold text-hackerGreen mb-4">📦 Мои курсы</h1>
+    <div className="max-w-6xl mx-auto px-4 py-10 space-y-8">
+      {/* Заголовок */}
+      <h1 className="text-3xl font-bold text-hackerGreen text-center">📚 Курсы</h1>
 
-      {/* Пример структуры */}
-      <div className="mb-4 p-4 bg-zinc-100 dark:bg-zinc-800 rounded">
-        <h2 className="font-semibold text-lg mb-2">Пример структуры курса</h2>
-        <pre className="text-xs whitespace-pre-wrap break-words">
-{`{
-  "id": "js-custom",
-  "name": "JS Курс",
-  "description": "Пользовательский курс по JavaScript",
-  "chapters": [
-    {
-      "id": "intro",
-      "title": "Введение",
-      "topics": [
-        {
-          "id": "vars",
-          "title": "Переменные",
-          "description": "let, const",
-          "done": false
-        }
-      ]
-    }
-  ]
-}`}
-        </pre>
+      {/* Вкладки */}
+      <div className="flex justify-center items-center gap-2">
+        <button
+          className={`px-4 py-2 rounded border font-medium transition ${
+            activeTab === "private"
+              ? "bg-hackerGreen text-black border-hackerGreen"
+              : "bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
+          }`}
+          onClick={() => setActiveTab("private")}
+        >
+          🔒 Мои курсы
+        </button>
+        <button
+          className={`px-4 py-2 rounded border font-medium transition ${
+            activeTab === "public"
+              ? "bg-hackerGreen text-black border-hackerGreen"
+              : "bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300"
+          }`}
+          onClick={() => setActiveTab("public")}
+        >
+          🌍 Глобальные курсы
+        </button>
       </div>
 
-      {/* Поле для JSON */}
-      <textarea
-        rows={8}
-        value={jsonInput}
-        onChange={(e) => setJsonInput(e.target.value)}
-        className="w-full p-3 border rounded bg-white dark:bg-zinc-900 text-sm dark:text-white"
-        placeholder="Вставьте JSON-курс сюда..."
-      />
-      {error && <p className="text-red-500 mt-1">{error}</p>}
-
-      {/* Радиокнопки */}
-      <div className="flex items-center gap-4 mt-2 mb-3 text-sm text-zinc-700 dark:text-zinc-300">
-        <label className="flex items-center gap-2">
-          <input
-            type="radio"
-            name="privacy"
-            value="private"
-            checked={privacy === "private"}
-            onChange={() => setPrivacy("private")}
-          />
-          Приватный курс
-        </label>
-        <label className="flex items-center gap-2">
-          <input
-            type="radio"
-            name="privacy"
-            value="public"
-            checked={privacy === "public"}
-            onChange={() => setPrivacy("public")}
-          />
-          Отправить на модерацию
-        </label>
+      {/* Кнопка добавления */}
+      <div className="flex justify-center">
+        <button
+          onClick={() => setModalOpen(true)}
+          className={`mt-4 px-4 py-2 rounded font-semibold transition ${
+            activeTab === "private"
+              ? "bg-hackerGreen text-black hover:opacity-90"
+              : "bg-zinc-400 text-white cursor-not-allowed opacity-60"
+          }`}
+          disabled={activeTab !== "private"}
+        >
+          ➕ Добавить курс
+        </button>
       </div>
 
-      <button
-        onClick={handleAddCourse}
-        className="mt-1 px-4 py-2 bg-hackerGreen text-black rounded hover:opacity-90"
-      >
-        ➕ Добавить курс
-      </button>
-
-      {/* Список курсов */}
-      <div className="mt-8 space-y-4">
-        <h2 className="text-lg font-semibold">Ваши курсы:</h2>
-        {userCourses.length === 0 && (
-          <p className="text-zinc-500">Нет добавленных курсов.</p>
-        )}
-        {userCourses.map((course) => (
-          <div
-            key={course.id}
-            className="p-4 border rounded bg-zinc-100 dark:bg-zinc-800 flex justify-between items-center"
-          >
-            <div>
-              <p className="font-semibold text-hackerGreen">{course.name}</p>
-              <p className="text-sm text-zinc-500">{course.description}</p>
-            </div>
-            <button
-              onClick={() => removeUserCourse(course.id)}
-              className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:opacity-90"
+      {/* Курсы */}
+      {courses.length === 0 ? (
+        <p className="text-zinc-500 dark:text-zinc-400 text-center mt-8">
+          Курсы не найдены.
+        </p>
+      ) : (
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {courses.map((course) => (
+            <motion.div
+              key={course.id}
+              className="border border-zinc-300 dark:border-zinc-700 rounded p-4 bg-white dark:bg-zinc-900 shadow cursor-pointer hover:shadow-lg transition"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              onClick={() => handleOpenCourse(course)}
             >
-              Удалить
-            </button>
-          </div>
-        ))}
-      </div>
+              <h3 className="font-bold text-hackerGreen text-lg mb-2">{course.name}</h3>
+              <p className="text-sm text-zinc-500 mb-3">
+                Глав: {course.chapters?.length || 0}
+              </p>
+              {activeTab === "private" && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleOpenCourse(course);
+                    }}
+                    className="text-sm px-3 py-1 bg-emerald-500 text-white rounded hover:opacity-90"
+                  >
+                    Начать
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeUserCourse(course.id);
+                    }}
+                    className="text-sm px-3 py-1 bg-red-500 text-white rounded hover:opacity-90"
+                  >
+                    Удалить
+                  </button>
+                </div>
+              )}
+              {activeTab === "public" && (
+                <p className="text-sm text-zinc-400 italic">⏳ Ожидает модерации</p>
+              )}
+            </motion.div>
+          ))}
+        </div>
+      )}
+
+      <AddCourseModal isOpen={modalOpen} onClose={() => setModalOpen(false)} />
     </div>
   );
 }

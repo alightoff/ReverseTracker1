@@ -13,10 +13,14 @@ export default function CourseDetailsPage() {
     0
   );
 
-  const completedTopics = activeCourse.chapters.reduce(
-    (acc, chapter) => acc + chapter.topics.filter((t) => t.done).length,
-    0
-  );
+  const completedTopics = activeCourse.chapters.reduce((acc, chapter) => {
+    return (
+      acc +
+      chapter.topics.filter(
+        (t) => typeof t === "object" && t.done
+      ).length
+    );
+  }, 0);
 
   return (
     <div className="max-w-5xl mx-auto p-6 space-y-6">
@@ -35,27 +39,31 @@ export default function CourseDetailsPage() {
       </div>
 
       <div className="space-y-4">
-        {activeCourse.chapters.map((chapter) => (
+        {activeCourse.chapters.map((chapter, i) => (
           <div
-            key={chapter.id}
+            key={i}
             className="border rounded-lg p-4 bg-zinc-100 dark:bg-zinc-800"
           >
             <h2 className="text-lg font-semibold text-hackerGreen mb-2">
               {chapter.title}
             </h2>
             <ul className="space-y-1 ml-4">
-              {chapter.topics.map((topic) => (
-                <li
-                  key={topic.id}
-                  className={`text-sm ${
-                    topic.done
-                      ? "text-emerald-500 line-through"
-                      : "text-zinc-700 dark:text-zinc-200"
-                  }`}
-                >
-                  • {topic.title}
-                </li>
-              ))}
+              {chapter.topics.map((topic, j) => {
+                const title = typeof topic === "string" ? topic : topic.title;
+                const done = typeof topic === "object" && topic.done;
+                return (
+                  <li
+                    key={j}
+                    className={`text-sm ${
+                      done
+                        ? "text-emerald-500 line-through"
+                        : "text-zinc-700 dark:text-zinc-200"
+                    }`}
+                  >
+                    • {title}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         ))}
