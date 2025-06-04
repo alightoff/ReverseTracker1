@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useCourseStore } from "../../store/courseStore";
 import CourseFileUploader from "../CourseUploader/CourseFileUploader";
 import { v4 as uuidv4 } from "uuid";
+import { toast } from "react-toastify";  // импорт toast
 
 export default function AddCourseModal({ isOpen, onClose }) {
   const [courseData, setCourseData] = useState(null);
@@ -14,7 +15,7 @@ export default function AddCourseModal({ isOpen, onClose }) {
 
   const handleSave = () => {
     if (!courseData?.name || !Array.isArray(courseData.chapters)) {
-      alert("Некорректная структура курса");
+      toast.error("❗ Некорректная структура курса");
       return;
     }
 
@@ -26,10 +27,10 @@ export default function AddCourseModal({ isOpen, onClose }) {
 
     if (isGlobal) {
       addPublicSubmit(newCourse);
-      alert("Курс отправлен на модерацию");
+      toast.success("🚀 Курс отправлен на модерацию");
     } else {
       addUserCourse(newCourse);
-      alert("Курс добавлен в ваши курсы");
+      toast.success("✅ Курс добавлен в ваши курсы");
     }
 
     setCourseData(null);

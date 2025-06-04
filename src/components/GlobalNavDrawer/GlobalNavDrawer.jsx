@@ -3,7 +3,14 @@ import { Link, useLocation } from "react-router-dom";
 
 const navLinks = [
   { label: "🏠 Курсы", to: "/" },
-  { label: "🛠 Мои курсы", to: "/my-courses" },
+  { label: "📘 Структура курса", to: "/course" },
+  { label: "📚 Мои курсы", to: "/my-courses" },
+  { label: "📈 Прогресс", to: "/progress" },
+  { label: "📅 Календарь", to: "/calendar" },
+  { label: "🔁 Повтор темы", to: "/repeat-topics" },
+  { label: "⏱ Таймер", to: "/timer" },
+  { label: "📝 Заметки", to: "/notes" },
+  { label: "📊 Статистика", to: "/statistics" }
 ];
 
 export default function GlobalNavDrawer({ open, onClose }) {

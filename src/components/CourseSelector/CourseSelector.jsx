@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useCourseStore } from "../../store/courseStore";
+import { toast } from "react-toastify";
 
 export default function CourseSelector() {
   const { activeCourse, setActiveCourse, userCourses } = useCourseStore();
@@ -9,29 +10,19 @@ export default function CourseSelector() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const defaultCourses = [
-      {
-        id: "cpp",
-        name: "Основы C++",
-        description: "Изучите язык C++ шаг за шагом.",
-        chapters: [
-          {
-            id: "intro",
-            title: "Введение",
-            topics: [
-              { id: "setup", title: "Установка", description: "Компиляторы", done: false },
-              { id: "syntax", title: "Синтаксис", description: "Первая программа", done: false }
-            ]
-          }
-        ]
-      }
-    ];
-    setCourses([...defaultCourses, ...userCourses]);
+    // Просто используем userCourses без дефолтных курсов
+    setCourses(userCourses);
   }, [userCourses]);
 
   const handleSelect = (course) => {
-    setActiveCourse(course);
-    navigate("/course");
+    try {
+      setActiveCourse(course);
+      toast.success(`📚 Курс "${course.name}" выбран`);
+      navigate("/course");
+    } catch (error) {
+      toast.error("❗ Ошибка при выборе курса");
+      console.error(error);
+    }
   };
 
   return (

@@ -1,5 +1,6 @@
 import { useDropzone } from "react-dropzone";
 import { useCallback } from "react";
+import { toast } from "react-toastify"; // импорт toast
 
 export default function CourseFileUploader({ onFileAccepted }) {
   const onDrop = useCallback((acceptedFiles) => {
@@ -10,8 +11,9 @@ export default function CourseFileUploader({ onFileAccepted }) {
       try {
         const json = JSON.parse(e.target.result);
         onFileAccepted(json);
+        toast.success("✅ Файл успешно загружен");
       } catch (err) {
-        alert("Ошибка: Файл не является валидным JSON");
+        toast.error("❗ Ошибка: файл не является валидным JSON");
       }
     };
 

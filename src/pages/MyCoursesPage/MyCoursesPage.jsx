@@ -3,6 +3,7 @@ import { useCourseStore } from "../../store/courseStore";
 import AddCourseModal from "../../components/AddCourseModal/AddCourseModal";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";  // импорт toast
 
 export default function MyCoursesPage() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -20,6 +21,13 @@ export default function MyCoursesPage() {
   const handleOpenCourse = (course) => {
     setActiveCourse(course);
     navigate("/course");
+  };
+
+  const handleRemoveCourse = (id) => {
+    if (window.confirm("Вы уверены, что хотите удалить этот курс?")) {
+      removeUserCourse(id);
+      toast.success("✅ Курс успешно удалён");
+    }
   };
 
   return (
@@ -99,7 +107,7 @@ export default function MyCoursesPage() {
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
-                      removeUserCourse(course.id);
+                      handleRemoveCourse(course.id);
                     }}
                     className="text-sm px-3 py-1 bg-red-500 text-white rounded hover:opacity-90"
                   >
